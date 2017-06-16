@@ -13722,7 +13722,7 @@ hpKeiIiEjf8H3MruZ6UKg70AAAAASUVORK5CYII=
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><strong>答案: 模型以最大深度1训练时，模型的预测时出现了很大的偏差，因为训练和测试曲线的得分都不超过0.5。模型以最大深度10训练时，模型的预测出现稍大的方差，因为测试曲线的阴影区变大，即不确定性变大。</strong></p>
+<p><strong>答案: 模型以最大深度1训练时，模型的预测时出现了很大的偏差，因为训练和测试曲线的得分都不超过0.5。模型以最大深度10训练时，训练集分数与测试集分数相差很大,训练分数接近1而测试分数约为0.7，会呈现出预测一部分数据表现好，换一部分数据表现就不好，也就是说模型对训练数据产生过拟合，会使得其泛化能力差。</strong></p>
 
 </div>
 </div>
@@ -13794,7 +13794,7 @@ hpKeiIiEjf8H3MruZ6UKg70AAAAASUVORK5CYII=
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><strong>答案: K折交叉验证法将数据集分成k个子集，每个子集均做一次测试集，其余的作为训练集。也就是说交叉验证重复k次，并将k次的平均交叉验证识别率作为结果。优化模型时，使用交叉验证多次取平均的方法可以较好地评估模型泛化能力（因为降低了模型在一次数据分割中性能表现上的方差），这样有利于网格搜索得到最佳模型组合参数。网格搜索根据你给定的模型参数自动进行交叉验证，通过调节每一个参数来跟踪评分结果，最后得到最佳参数组合。网格搜索时，如果不使用交叉验证，有可能因为在这一次数据分割后引起的性能表现方差过大而对最佳参数组合产生误判。GridSearchCV中的'cv_results'属性能告诉我们每个参数组合所生成训练模型的mean_fit_time, mean_score_time, mean_test_score, mean_train_score。</strong></p>
+<p><strong>答案: K折交叉验证法将训练集分成k个子集，每个子集均做为验证集用来验证k-1部分的训练结果，总共验证k次。也就是说交叉验证重复k次，并将k次的平均交叉验证识别率作为结果。优化模型时，使用交叉验证多次取平均的方法可以较好地评估模型泛化能力（因为降低了模型在一次数据分割中性能表现上的方差），这样有利于网格搜索得到最佳模型组合参数。网格搜索根据你给定的模型参数自动进行交叉验证，通过调节每一个参数来跟踪评分结果，最后得到最佳参数组合。网格搜索时，如果不使用交叉验证，有可能因为在这一次数据分割后引起的性能表现方差过大而对最佳参数组合产生误判。GridSearchCV中的'cv_results'属性能告诉我们每个参数组合所生成训练模型的mean_fit_time, mean_score_time, mean_test_score, mean_train_score。</strong></p>
 
 </div>
 </div>
