@@ -130,7 +130,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="settings.editor.selected.configurable" value="vcs.Git" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/agent.py" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../smartcab-me" />
   </component>
   <component name="RunManager" selected="Python.agent">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
