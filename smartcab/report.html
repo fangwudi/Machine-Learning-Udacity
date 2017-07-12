@@ -11892,7 +11892,7 @@ div#notebook {
 <ul>
 <li>在模拟过程中，智能出租车一直没有移动，显示“!! Agent state not been updated!”以及“No action taken”</li>
 <li>驾驶代理程序获得了的奖励显示为数值，有正实数，也有负实数</li>
-<li>交通灯为红灯，车子没动，奖励为正值；交通灯为绿灯，车子没动，奖励负正值</li>
+<li>通过采用ipdb断点具体观察发现，交通灯为红灯，车子没动，奖励为正值；交通灯为绿灯时，如果路口有其他车的目标朝向会影响到智能车的目标朝向时，也就是会发生交通阻塞时，智能车的“no action”会得到正值奖励；其他情况的绿灯时，路口畅通，而智能车没动，则奖励为负值</li>
 </ul>
 
 </div>
@@ -13158,7 +13158,7 @@ ybd4AAAAAElFTkSuQmCC
 <li>与安全性相关最高的是，inputs，智能出租车的感知器数据，包括交通灯颜色，以及路口车辆目的方向的信息;</li>
 <li>与效率相关性最高的是，'waypoint'，包含了目的方向，这直接影响是否能够到达目的；</li>
 <li>这些特征既有当前路口的信息，也有任务信息，因此适合在环境中对智能出租车建模；</li>
-<li>没有选择'deadline'，放弃的原因是它相关性不高，而且该特征变化空间较大。</li>
+<li>没有选择'deadline'，放弃的原因是它相关性不高，帮助不大，而且会增加问题的复杂度。deadline取值为从0到30的整数，如果取该值为特征，会使得特征空间急剧增大，后续试验数量需要大增，迭代Q值难度加大。</li>
 </ul>
 
 </div>
@@ -16915,7 +16915,7 @@ SeoRGyxJkiRJ6hEbLEmSJEnqERssSZIkSeqRH6Z9Efz64gHvAAAAAElFTkSuQmCC
 <ul>
 <li>尝试了上述四种衰减函数，最终选用了cos函数作为衰减函数；</li>
 <li>在测试之前驾驶代理大约需要做600次训练试验；</li>
-<li>用了epsilon-tolerance为0.01和alpha（学习率）值为0.75，epsilon-tolerance值的选择与衰减函数选择有一定关系，而且不能过大，否则测试得分会偏低，而alpha（学习率）值尝试过0.5和0.9，均不理想；</li>
+<li>用了epsilon-tolerance为0.01和alpha（学习率）值为0.75，epsilon-tolerance值的选择与衰减函数选择有一定关系，而且不能过大，否则测试得分会偏低，而alpha（学习率）值尝试过0.5和0.9，均不理想；从epsilon-tolerance和alpha对于Q-learning的意义来分析，epsilon-tolerance值如果过大，会使得Q-Learning训练稳定性不足，也就是不能在探索性小的情况下让最优策略或次优策略的Q值得到充分的迭代，达到理想的水平，而影响测试结果；而epsilon-tolerance值如果过小，也就是非常接近0的话，会使得训练次数增多，可能增加不必要的开销；再看学习率alpha，学习速率α越大，保留之前训练的效果就越少，因此该值如果过大，则训练效果无法沉淀到Q值，过小则容易训练不充分。</li>
 <li>与之前的默认Q-Learning学习器相比，这个Q-Learning学习器得到了极大提升，当然也是经过许多次调整参数之后的结果；</li>
 <li>说Q-Learning学习器的结果表明了的驾驶代理程序成功地学习了一个合适的策略；</li>
 <li>我对智能出租车的安全性和可靠性评分满意；</li>
@@ -16971,16 +16971,27 @@ SeoRGyxJkiRJ6hEbLEmSJEnqERssSZIkSeqRH6Z9Efz64gHvAAAAAElFTkSuQmCC
 <li>（例子1）大多数策略（得分最高的动作）是正确的。比如如下：</li>
 </ul>
 <p>state = (waypoint, inputs['light'], inputs['oncoming'], inputs['left'], inputs['right'])</p>
-<p>('right', 'red', None, 'left', 'forward')
- -- forward : -39.24
- -- left : -40.78
- -- right : 1.46
- -- None : 1.52</p>
+<p>('forward', 'red', 'left', None, 'left')
+ -- forward : -8.89
+ -- left : -9.46
+ -- right : 0.87
+ -- None : 2.22</p>
 <ul>
-<li><p>其中策略动作是None，而此时状态是红灯，因此是正确的策略</p>
-</li>
-<li><p>（例子2）但是还有许多策略并不是预期的最优策略，比如下述这个：</p>
-</li>
+<li>其中策略动作是None，而状态是，目的方向为直行，交通灯为红灯，因此预期最优策略也是停车。</li>
+</ul>
+<ul>
+<li>（例子2）又比如下述这个：</li>
+</ul>
+<p>('left', 'green', None, 'left', 'forward')
+ -- forward : 1.05
+ -- left : 2.36
+ -- right : 0.00
+ -- None : -2.01</p>
+<ul>
+<li>其中策略动作是左转，而状态是，目的方向为左转，交通灯为绿灯，并且对向无来车影响（inputs['oncoming']为None），因此预期最优策略也是左转。</li>
+</ul>
+<ul>
+<li>（例子3）但是还有许多策略并不是预期的最优策略，比如下述这个：</li>
 </ul>
 <p>('forward', 'green', 'right', None, None)
  -- forward : 0.90
@@ -16989,6 +17000,17 @@ SeoRGyxJkiRJ6hEbLEmSJEnqERssSZIkSeqRH6Z9Efz64gHvAAAAAElFTkSuQmCC
  -- None : -4.95</p>
 <ul>
 <li>其中策略动作是右转，然而状态是，目的方向为直行，绿灯，而且其他路口不会干扰到直行，因此预期最优策略是直行。</li>
+</ul>
+<ul>
+<li>（例子4）又比如下述这个：</li>
+</ul>
+<p>('right', 'red', None, 'left', 'forward')
+ -- forward : -39.24
+ -- left : -40.78
+ -- right : 1.46
+ -- None : 1.52</p>
+<ul>
+<li>其中策略动作是None，而此时状态是红灯，目标方向是右转，inputs['left']不是forward，因此预期最优策略是右转，策略动作None反而是次优策略</li>
 </ul>
 
 </div>
@@ -17022,15 +17044,14 @@ SeoRGyxJkiRJ6hEbLEmSJEnqERssSZIkSeqRH6Z9Efz64gHvAAAAAElFTkSuQmCC
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><strong>回答：</strong></p>
 <ul>
-<li><p>先说一下我对于未来奖励的认识。Q-learning公式为，Q(state, action) = (1-a)<em> Q(state, action) + a </em> (R(state, action) + Gamma * MaxQ(next state, all actions))。 Gamma为折扣因子，越大则MaxQ(next state, all actions)作用越大，而后者指的是“记忆中的利益”，也就是在以前探索场景（episode）中的后续状态的动作中效用值的最大值。这就是未来奖励，也就是预估的未来奖励。而如果我们在终点状态设置了非常大的reward，那么理论上此处未来奖励就会往前往终点的路径上扩散开来，扩散过程是随多次的探索场景进行的。当然，我的理解是，也可以在其他多个状态上设置较大reward，也会同样地往朝向该状态的路径上扩散。而如果，终点状态不固定，前往终点的路径也不固定，则未来奖励无法起作用。</p>
-</li>
-<li><p>根据老师的提示，我根据这个项目中的具体特点来分析</p>
+<li>先说一下我对于未来奖励的认识。Q-learning公式为，Q(state, action) = (1-a)<em> Q(state, action) + a </em> (R(state, action) + Gamma * MaxQ(next state, all actions))。 Gamma为折扣因子，越大则MaxQ(next state, all actions)作用越大，而后者指的是“记忆中的利益”，也就是在以前探索场景（episode）中的后续状态的动作中效用值的最大值。这就是未来奖励，也就是预估的未来奖励。而如果我们在终点状态设置了非常大的reward，那么理论上此处未来奖励就会往前往终点的路径上扩散开来，扩散过程是随多次的探索场景进行的。当然，我的理解是，也可以在其他多个状态上设置较大reward，也会同样地往朝向该状态的路径上扩散。而如果，终点状态不固定，前往终点的路径也不固定，则未来奖励无法起作用。</li>
+</ul>
 <ul>
+<li>根据这个项目中的具体特点来分析<ul>
 <li>智能车的输入信号中，有waypoint来指示目的地的大致方位，然而却不知道具体位置，即使是相对位置也不知道，由此也不知道距离。也就是说状态信息中并没有包含位置信息，而在这里位置信息才能有效表示状态间的转换</li>
 <li>在训练环境中，智能车的起点和终点都是随机的，因此没有办法找到终点的状态再让它扩散未来奖励到起点处。</li>
 </ul>
 </li>
-<li>我对未来奖励的理解确实不够，希望能够学习下优秀答案。</li>
 </ul>
 
 </div>

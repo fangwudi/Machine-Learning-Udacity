@@ -84,7 +84,7 @@ class LearningAgent(Agent):
         ## TO DO ##
         ###########
         # Calculate the maximum Q-value of all actions for a given state
-        maxQ = max(self.Q[state][action] for action in self.valid_actions)
+        maxQ = max(self.Q[state].values())
 
         return maxQ
 
@@ -100,7 +100,7 @@ class LearningAgent(Agent):
         #   Then, for each action available, set the initial Q-value to 0.0
         if self.learning:
             if state not in self.Q.keys():
-                self.Q[state] = {None: 0.0, 'forward': 0.0, 'left': 0.0, 'right': 0.0}
+                self.Q[state] = {action: 0.0 for action in self.valid_actions}
 
         return
 
@@ -126,10 +126,11 @@ class LearningAgent(Agent):
             else:
                 maxQ = self.get_maxQ(state)
                 max_keys = [k for k, v in self.Q[state].items() if v == maxQ]
-                action = max_keys[random.randint(0, len(max_keys) - 1)]
+                action = random.choice(max_keys)
         else:
             action = random.choice(self.valid_actions)
 
+        # return None
         return action
 
 
@@ -158,6 +159,10 @@ class LearningAgent(Agent):
         self.createQ(state)                 # Create 'state' in Q-table
         action = self.choose_action(state)  # Choose an action
         reward = self.env.act(self, action) # Receive a reward
+        # if reward < 0 and state[1] == 'red':
+        #    import ipdb
+        #    ipdb.set_trace(context=10)
+        #    print('================> light: {}, action: {}'.format(state[1], action))
         self.learn(state, action, reward)   # Q-learn
 
         return
