@@ -72,3 +72,4 @@ cifar-10-batches-py
 cifar-10-python.tar.gz
 *.p
 image_classification
+image_classification.data-00000-of-00001
